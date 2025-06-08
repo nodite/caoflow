@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "alwaysStrict": true,
+    // "baseUrl": "./src",
+    "declaration": true,
+    // "declarationDir": "dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["es5", "es6", "es7", "esnext", "dom"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "newLine": "LF",
+    "noFallthroughCasesInSwitch": true,
+    "outDir": "dist",
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "esnext",
+    "pretty": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "rootDir": "src",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "composite": true,
+    "paths": {
+      "@services/*": ["./src/services/*"],
+      "@components/*": ["./src/components/*"],
+      "@commands/*": ["./src/commands/*"],
+      "@abstracts/*": ["./src/abstracts/*"],
+      "@@types/*": ["./src/@types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@env": ["./src/env.ts"]
+    }
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["./node_modules/**/*"],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
+}

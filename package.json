@@ -1,0 +1,153 @@
+{
+  "name": "caoflow",
+  "description": "A amazing command line interface to operate caoflow.",
+  "version": "0.0.0",
+  "author": "Oscaner Miao",
+  "bin": {
+    "caoflow": "./bin/run.js"
+  },
+  "bugs": "https://github.com/nodite/caoflow/issues",
+  "dependencies": {
+    "@inquirer/prompts": "^7",
+    "@keyv/sqlite": "^4",
+    "@nodite/cache-manager-adapter": "github:nodite/type-cacheable-cache-manager-adapter#main",
+    "@oclif/core": "^4",
+    "@oclif/plugin-autocomplete": "^3",
+    "@oclif/plugin-help": "^6",
+    "@type-cacheable/core": "^14",
+    "acorn": "^8",
+    "acorn-walk": "^8",
+    "ansi-colors": "^4",
+    "await-until": "^2",
+    "axios": "^1",
+    "axios-cache-interceptor": "^1",
+    "better-sqlite3": "^12",
+    "body-parser": "^2",
+    "cache-manager": "^7",
+    "cacheable": "^1",
+    "dotenv": "^16",
+    "edge-paths": "^3",
+    "efficient-random-weighted": "^1",
+    "escodegen": "^2",
+    "express": "^5",
+    "express-http-proxy": "^2",
+    "fs-extra": "^11",
+    "get-port": "^7",
+    "http-cookie-agent": "^7",
+    "http-status": "^2",
+    "json5": "^2",
+    "keyv": "^5",
+    "lodash": "^4",
+    "moment": "^2",
+    "object-treeify": "^5",
+    "pkg-dir": "^8",
+    "puppeteer": "^24",
+    "puppeteer-extra": "^3",
+    "puppeteer-extra-plugin-stealth": "^2",
+    "table": "^6",
+    "tough-cookie": "^5",
+    "user-agents": "^1",
+    "uuid": "^11",
+    "validator": "^13"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19",
+    "@commitlint/config-conventional": "^19",
+    "@commitlint/types": "^19",
+    "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9",
+    "@oclif/prettier-config": "^0",
+    "@oclif/test": "^4",
+    "@types/better-sqlite3": "^7",
+    "@types/chai": "^5",
+    "@types/escodegen": "^0",
+    "@types/express": "^5",
+    "@types/express-http-proxy": "^1",
+    "@types/fs-extra": "^11",
+    "@types/lodash": "^4",
+    "@types/mocha": "^10",
+    "@types/node": "^24",
+    "@types/user-agents": "^1",
+    "@types/validator": "^13",
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "@typescript-eslint/typescript-estree": "^8",
+    "chai": "^5",
+    "eslint": "^9",
+    "eslint-config-oclif": "^6",
+    "eslint-config-prettier": "^10",
+    "eslint-import-resolver-typescript": "^4",
+    "eslint-plugin-import-x": "^4",
+    "eslint-plugin-n": "^17",
+    "eslint-plugin-perfectionist": "^4",
+    "eslint-plugin-prettier": "^5",
+    "eslint-plugin-unicorn": "^59",
+    "globals": "^16",
+    "husky": "^9",
+    "mocha": "^11",
+    "oclif": "^4",
+    "prettier": "^3",
+    "shx": "^0",
+    "swagger-typescript-api": "13",
+    "tsc-alias": "^1",
+    "tsconfig-paths": "^4",
+    "tsx": "^4",
+    "typescript": "^5"
+  },
+  "overrides": {},
+  "engines": {
+    "node": ">20.6.0"
+  },
+  "files": [
+    "./bin",
+    "./dist",
+    "./oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/https://github.com/nodite/caoflow/caoflow",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "type": "module",
+  "oclif": {
+    "bin": "caoflow",
+    "dirname": "caoflow",
+    "commands": "./dist/commands",
+    "flexibleTaxonomy": true,
+    "hooks": {
+      "init": [
+        "./dist/hooks/init/main"
+      ],
+      "finally": [
+        "./dist/hooks/finally/main"
+      ]
+    },
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "user": {
+        "description": "Manage user information"
+      },
+      "openapi": {
+        "description": "Manage OpenAPI specification"
+      }
+    }
+  },
+  "repository": "https://github.com/nodite/caoflow",
+  "scripts": {
+    "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b && tsc-alias",
+    "lint": "eslint . -c eslint.config.mjs",
+    "lint:fix": "eslint . --fix -c eslint.config.mjs",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "npm run lint",
+    "prepack": "oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md",
+    "prepare": "husky"
+  },
+  "types": "dist/index.d.ts"
+}
