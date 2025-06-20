@@ -53,24 +53,24 @@ To retrieve the API key, run: \`citflow user apikey get --client-id xxx\`
       flags['client-secret'] = await password({mask: true, message: 'Client Secret:'})
     }
 
-    const exists = await this.userService.listApiKeys(flags['client-id'])
+    const existApiKeys = await this.userService.listApiKeys(flags['client-id'])
 
-    if (lodash.isEmpty(exists)) {
-      this.error(`No related API key found online for Client ID: ${flags['client-id']}`, {exit: false})
+    if (!lodash.isEmpty(existApiKeys)) {
+      flags.force = true
+    } else if (!flags.force) {
+      this.warn(`No related API key found online for Client ID: ${flags['client-id']}`)
 
       flags.force = await confirm({
         default: false,
-        message: 'Do you want to force set this API key?',
+        message: 'Do you want to store it at local machine?',
       })
-    } else {
-      flags.force = true
     }
 
     if (!flags.force) {
       throw this.error('Operation cancelled.', {exit: 1})
     }
 
-    await this.userService.setApiKey(flags['client-id'], flags['client-secret'])
+    await this.userService.setClientSecret(flags['client-id'], flags['client-secret'])
 
     this.log('API key set successfully.')
 

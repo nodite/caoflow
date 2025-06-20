@@ -5,6 +5,7 @@ import Logger from '@utils/logger'
 import _axios from 'axios'
 import {AxiosCacheInstance, buildMemoryStorage, setupCache} from 'axios-cache-interceptor'
 import lodash from 'lodash'
+import pjson from 'pjson'
 import {Cookie} from 'tough-cookie'
 
 const logger = new Logger('axios')
@@ -21,6 +22,8 @@ const createAxios = (...axiosConfig: Parameters<typeof _axios.create>) => {
   setupCookieJar(axios)
 
   axios.interceptors.request.use(async (config) => {
+    config.headers['User-Agent'] = `citflow-cli/${pjson.version}`
+
     if (!lodash.has(config, 'secure') || config.secure) {
       const userService = new UserService()
       const loginService = new LoginService()
@@ -31,6 +34,8 @@ const createAxios = (...axiosConfig: Parameters<typeof _axios.create>) => {
       config.headers.Authorization = `Bearer ${token?.token}`
 
       await CookieJar.setCookie(new Cookie({key: 'FlowToken', value: token?.token}), config.baseURL || config.url || '')
+    } else {
+      await CookieJar.setCookie(new Cookie({key: 'FlowToken', value: ''}), config.baseURL || config.url || '')
     }
 
     return config

@@ -7,6 +7,10 @@ const createApp = () => {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({extended: true}))
 
+  app.get('/health', (req, res) => {
+    res.status(200).send(true)
+  })
+
   return app
 }
 

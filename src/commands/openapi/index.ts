@@ -1,4 +1,4 @@
-import type {ServiceName} from '@@types/openapi'
+import type {ServiceName} from '@@types/services/openapi'
 
 import OpenAPICommand from '@abstracts/openapi'
 import OpenAPIService from '@services/openapi'

@@ -31,6 +31,10 @@ USAGE
 <!-- commands -->
 * [`citflow autocomplete [SHELL]`](#citflow-autocomplete-shell)
 * [`citflow help [COMMAND]`](#citflow-help-command)
+* [`citflow llm auth list`](#citflow-llm-auth-list)
+* [`citflow llm auth set`](#citflow-llm-auth-set)
+* [`citflow llm auth sync`](#citflow-llm-auth-sync)
+* [`citflow llm proxy start`](#citflow-llm-proxy-start)
 * [`citflow login`](#citflow-login)
 * [`citflow openapi`](#citflow-openapi)
 * [`citflow openapi codegen`](#citflow-openapi-codegen)
@@ -70,7 +74,7 @@ EXAMPLES
   $ citflow autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.2.30/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.2.31/src/commands/autocomplete/index.ts)_
 
 ## `citflow help [COMMAND]`
 
@@ -91,6 +95,102 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.29/src/commands/help.ts)_
+
+## `citflow llm auth list`
+
+List all LLM auths.
+
+```
+USAGE
+  $ citflow llm auth list [--show-secrets]
+
+FLAGS
+  --show-secrets  Show client secrets in the output.
+
+DESCRIPTION
+  List all LLM auths.
+
+EXAMPLES
+  $ citflow llm auth list
+```
+
+_See code: [src/commands/llm/auth/list.ts](https://github.com/nodite/citflow/blob/v0.0.0/src/commands/llm/auth/list.ts)_
+
+## `citflow llm auth set`
+
+Set LLM auth metadata.
+
+```
+USAGE
+  $ citflow llm auth set --name <value> [--agent <value>] [--client-id <value>] [--client-secret <value>] [-f]
+    [--tenant <value>]
+
+FLAGS
+  -f, --force                  Force set without confirmation if no related LLM auth metadata found online.
+      --agent=<value>          [default: simple_agent] Agent for the LLM auth metadata.
+      --client-id=<value>      Client ID for the LLM auth metadata.
+      --client-secret=<value>  Client secret for the LLM auth metadata.
+      --name=<value>           (required) Name of the LLM auth metadata to set.
+      --tenant=<value>         Tenant for the LLM auth metadata.
+
+DESCRIPTION
+  Set LLM auth metadata.
+
+EXAMPLES
+  $ citflow llm auth set --name <name>
+  ✔ Name: <name>
+  ✔ Client ID: <client-id>
+  ✔ Tenant: <tenant>
+  ✔ Client Secret: <client-secret>
+  LLM auth metadata <name> has been set successfully.
+```
+
+_See code: [src/commands/llm/auth/set.ts](https://github.com/nodite/citflow/blob/v0.0.0/src/commands/llm/auth/set.ts)_
+
+## `citflow llm auth sync`
+
+Sync LLM auth metadata from user apikey.
+
+```
+USAGE
+  $ citflow llm auth sync [-f]
+
+FLAGS
+  -f, --force  Force sync without confirmation.
+
+DESCRIPTION
+  Sync LLM auth metadata from user apikey.
+
+EXAMPLES
+  $ citflow llm auth sync
+```
+
+_See code: [src/commands/llm/auth/sync.ts](https://github.com/nodite/citflow/blob/v0.0.0/src/commands/llm/auth/sync.ts)_
+
+## `citflow llm proxy start`
+
+Proxy for LLM API.
+
+```
+USAGE
+  $ citflow llm proxy start [--traffic balance|encourage|none]
+
+FLAGS
+  --traffic=<option>  [default: balance] Not balance traffic by registered llm auth.
+                      <options: balance|encourage|none>
+
+DESCRIPTION
+  Proxy for LLM API.
+
+EXAMPLES
+  $ citflow llm proxy start
+
+  $ citflow llm proxy start --traffic balance
+
+  $ citflow llm proxy start --traffic encourage
+```
+
+_See code: [src/commands/llm/proxy/start.ts](https://github.com/nodite/citflow/blob/v0.0.0/src/commands/llm/proxy/start.ts)_
 
 ## `citflow login`
 

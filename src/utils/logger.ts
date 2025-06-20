@@ -71,7 +71,7 @@ export default class Logger {
    */
   public warn(input: Error | string): Error | string {
     if (lodash.isString(input)) input = colors.yellow(input)
-    if (this.jsonEnabled) Errors.warn(input)
+    if (!this.jsonEnabled) Errors.warn(input)
     return input
   }
 }

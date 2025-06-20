@@ -1,4 +1,4 @@
-import type {AuthUser} from '@@types/login'
+import type {AuthUser} from '@@types/services/flow/login'
 
 import BaseCommand from '@abstracts/base'
 import {select} from '@inquirer/prompts'
