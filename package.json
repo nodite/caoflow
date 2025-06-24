@@ -21,7 +21,7 @@
     "await-until": "^2",
     "axios": "^1",
     "axios-cache-interceptor": "^1",
-    "better-sqlite3": "^11",
+    "better-sqlite3": "^12",
     "body-parser": "^2",
     "cache-manager": "^7",
     "cacheable": "^1",
