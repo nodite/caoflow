@@ -10,6 +10,7 @@ import proxy from 'express-http-proxy'
 import getPort from 'get-port'
 import JSON from 'json5'
 import lodash from 'lodash'
+import moment from 'moment'
 import {table} from 'table'
 
 export default class ProxyService extends BaseService {
@@ -59,7 +60,9 @@ export default class ProxyService extends BaseService {
             '>',
           ].join('')
 
-          this.logger.info(`Using Google GenAI with profile:\n${profile}`)
+          this.logger.info(
+            `[${colors.yellow(moment().format('YYYY-MM-DD HH:mm:ss'))}] Using Google GenAI with profile:\n${profile}`,
+          )
 
           proxyReqOpts.headers = lodash.merge({}, proxyReqOpts.headers, {
             Authorization: `Bearer ${token}`,
