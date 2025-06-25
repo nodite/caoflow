@@ -1,4 +1,4 @@
-import {SERVICES} from '@@types/openapi'
+import {SERVICES} from '@@types/services/openapi'
 import {Flags} from '@oclif/core'
 import lodash from 'lodash'
 

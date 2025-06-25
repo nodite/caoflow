@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import type {GenerateApiConfiguration, ServiceName} from '@@types/openapi'
+import type {GenerateApiConfiguration, ServiceName} from '@@types/services/openapi'
 import type {AssignmentProperty, Literal, Property} from 'acorn'
 
 import axios from '@components/axios'

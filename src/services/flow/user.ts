@@ -1,5 +1,5 @@
-import type {AuthType, AuthUser} from '@@types/login'
-import type {ApiKeyDto, AppName, CreateApiKeyResult} from '@@types/user-api/data-constracts'
+import type {ApiKeyDto, AppName, CreateApiKeyResult} from '@@types/components/openapi/user-api/data-constracts'
+import type {AuthType, AuthUser} from '@@types/services/flow/login'
 
 import {CacheClient} from '@components/cache'
 import LoginApi from '@components/openapi/login-service/LoginService'
@@ -18,8 +18,8 @@ export default class UserService extends BaseService {
 
   protected userApi = new UserApi({baseURL: FLOW_BASE_URL})
 
-  static CACHE_KEY_APIKEY = (tenant: string, clientId: string) => {
-    const logger = new Logger('CACHE_KEY_APIKEY')
+  static CACHE_KEY_CLIENT_SECRET = (tenant: string, clientId: string) => {
+    const logger = new Logger('CACHE_KEY_CLIENT_SECRET')
 
     return (args: any[]) => {
       const user = lodash.find(args, (arg) => lodash.has(arg, 'auth') && lodash.has(arg, 'user')) as
@@ -28,12 +28,23 @@ export default class UserService extends BaseService {
 
       if (!user) throw logger.error('AuthUser is required to build the cache key.', {exit: 1})
 
-      if (user.auth === 'email' && !validator.isEmail(user.user)) {
+      if (user.auth === 'email' && user.user !== '*' && !validator.isEmail(user.user)) {
         throw logger.error('Invalid email address.', {exit: 1})
       }
 
-      return `${user.auth}:${user.user}:apikey:${tenant}:${clientId}`
+      return `${user.auth}:${user.user}:client_secret:${tenant}:${clientId}`
     }
+  }
+
+  public async clearClientSecret(clientId: string): Promise<void> {
+    const user = await this.getDefaultUser()
+    await this.clearClientSecretForUser(user, clientId)
+  }
+
+  public async clearClientSecretForUser(user: AuthUser, clientId: string): Promise<void> {
+    if (!user.tenant) user.tenant = await this.getPrincipalTenant()
+    const cacheKey = UserService.CACHE_KEY_CLIENT_SECRET(user.tenant, clientId)([user])
+    await CacheClient.USER.del(cacheKey)
   }
 
   public async createApiKey(name: string, apps: AppName[]): Promise<CreateApiKeyResult> {
@@ -45,27 +56,27 @@ export default class UserService extends BaseService {
     // api key.
     const apiKey = resp.data as unknown as CreateApiKeyResult
 
-    await this.setApiKey(apiKey.clientId, apiKey.clientSecret)
+    await this.setClientSecret(apiKey.clientId, apiKey.clientSecret)
 
     return apiKey
   }
 
   public async deleteApiKey(apiKey: ApiKeyDto): Promise<void> {
-    const user = await this.getDefaultUser()
-    const tenant = await this.getPrincipalTenant()
-    const cacheKey = UserService.CACHE_KEY_APIKEY(tenant, apiKey.clientId)([user])
-
     if (!apiKey.dangling) {
       await this.userApi.deleteApiKey(apiKey.clientId)
     }
 
-    await CacheClient.USER.del(cacheKey)
+    await this.clearClientSecret(apiKey.clientId)
   }
 
   public async getClientSecret(clientId: string): Promise<string | undefined> {
     const user = await this.getDefaultUser()
-    const tenant = await this.getPrincipalTenant()
-    const cacheKey = UserService.CACHE_KEY_APIKEY(tenant, clientId)([user])
+    return this.getClientSecretForUser(user, clientId)
+  }
+
+  public async getClientSecretForUser(user: AuthUser, clientId: string): Promise<string | undefined> {
+    if (!user.tenant) user.tenant = await this.getPrincipalTenant()
+    const cacheKey = UserService.CACHE_KEY_CLIENT_SECRET(user.tenant, clientId)([user])
     return CacheClient.USER.get<string>(cacheKey)
   }
 
@@ -108,6 +119,12 @@ export default class UserService extends BaseService {
   }
 
   public async listApiKeys(search?: string, showInactive?: boolean): Promise<ApiKeyDto[]> {
+    const user = await this.getDefaultUser()
+    user.tenant = await this.getPrincipalTenant()
+    return this.listApiKeysForUser(user, search, showInactive)
+  }
+
+  public async listApiKeysForUser(user: AuthUser, search?: string, showInactive?: boolean): Promise<ApiKeyDto[]> {
     const apiKeys: ApiKeyDto[] = []
 
     // Pagination
@@ -129,9 +146,7 @@ export default class UserService extends BaseService {
     } while (true)
 
     // fix dangling API keys that are not in the cache.
-    const user = await this.getDefaultUser()
-    const tenant = await this.getPrincipalTenant()
-    const cacheKeys = await CacheClient.USER.keys(UserService.CACHE_KEY_APIKEY(tenant, '*')([user]))
+    const cacheKeys = await CacheClient.USER.keys(UserService.CACHE_KEY_CLIENT_SECRET(user.tenant!, '*')([user]))
 
     for (const key of cacheKeys) {
       const clientId = key.split(':').at(-1) as string
@@ -160,10 +175,14 @@ export default class UserService extends BaseService {
     )
   }
 
-  public async setApiKey(clientId: string, clientSecret: string): Promise<void> {
+  public async setClientSecret(clientId: string, clientSecret: string): Promise<void> {
     const user = await this.getDefaultUser()
-    const tenant = await this.getPrincipalTenant()
-    const cacheKey = UserService.CACHE_KEY_APIKEY(tenant, clientId)([user])
+    await this.setClientSecretForUser(user, clientId, clientSecret)
+  }
+
+  public async setClientSecretForUser(user: AuthUser, clientId: string, clientSecret: string): Promise<void> {
+    if (!user.tenant) user.tenant = await this.getPrincipalTenant()
+    const cacheKey = UserService.CACHE_KEY_CLIENT_SECRET(user.tenant, clientId)([user])
     await CacheClient.USER.set(cacheKey, clientSecret)
   }
 

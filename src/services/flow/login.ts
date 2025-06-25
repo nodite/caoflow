@@ -1,5 +1,5 @@
-import type {AuthUser} from '@@types/login'
-import type {TokenResult} from '@@types/login-service/data-constracts'
+import type {TokenResult} from '@@types/components/openapi/login-service/data-constracts'
+import type {AuthUser} from '@@types/services/flow/login'
 import type {CreateTokenBody, GeneratePrincipalPolicyUrlDto} from '@components/openapi/login-service/data-contracts'
 
 import {CacheClient} from '@components/cache'
