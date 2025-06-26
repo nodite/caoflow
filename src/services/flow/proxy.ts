@@ -1,7 +1,6 @@
 import {RequestOptions} from 'node:http'
 
 import {AuthMeta} from '@@types/services/flow/llm'
-import {FlowError} from '@@types/services/flow/proxy'
 import {SampleMode} from '@@types/utils/reward'
 import {FLOW_BASE_URL} from '@env'
 import BaseService from '@services/base'
@@ -12,7 +11,6 @@ import colors from 'ansi-colors'
 import {Request} from 'express'
 import proxy, {ProxyOptions} from 'express-http-proxy'
 import getPort from 'get-port'
-import JSON from 'json5'
 import lodash from 'lodash'
 import moment from 'moment'
 import {table} from 'table'
@@ -61,16 +59,6 @@ export default class ProxyService extends BaseService {
     app.use(
       '/v1/google',
       proxy(FLOW_BASE_URL, {
-        proxyErrorHandler(err, res, next) {
-          // reward.demote('google genai', lodash.map(authMetas, 'clientId'))
-
-          if (err instanceof FlowError) {
-            const {data, status} = err
-            return res.status(status || 500).send(data)
-          }
-
-          next(err)
-        },
         proxyReqBodyDecorator: (reqBody, srcReq) => {
           const {model} = this.parseGoogleapisUrl(srcReq.url)
 
@@ -84,61 +72,6 @@ export default class ProxyService extends BaseService {
           const {operation} = this.parseGoogleapisUrl(req.url)
           const newUrl = `/ai-orchestration-api/v1/google/${operation}`
           return newUrl
-        },
-        userResDecorator: (proxyRes, proxyResData, _userReq, _userRes) => {
-          let data = {} as Record<string, any>
-
-          try {
-            let resData = proxyResData.toString('utf8')
-
-            if (resData.includes('data: ')) {
-              const resDatas = lodash
-                .chain(resData)
-                .split('data: ')
-                .filter()
-                .map((item) => {
-                  return JSON.parse(item.trim())
-                })
-                .value()
-
-              resData = JSON.stringify(resDatas)
-            }
-
-            data = JSON.parse(resData.trim())
-          } catch (error: any) {
-            this.logger.warn(error)
-          }
-
-          if (lodash.isEmpty(data)) {
-            data = {message: proxyRes.statusMessage, status: proxyRes.statusCode}
-          }
-
-          if (proxyRes.statusCode !== 200) {
-            const err = new FlowError(proxyRes.statusMessage || 'Unknown error')
-            err.status = proxyRes.statusCode || 500
-            err.data = data
-            throw err
-          }
-
-          if (data?.error) {
-            const err = new FlowError(data.error)
-
-            err.data = data
-
-            if (data?.statusCode) {
-              err.status = data.statusCode
-            }
-
-            if (!lodash.isEmpty(data?.history)) {
-              err.status = data.history.at(-1)?.status || err.status || 500
-            } else if (String(data?.err).startsWith('Failed to prompt any model for tenant')) {
-              err.status = 429 // too many requests
-            }
-
-            throw err
-          }
-
-          return proxyResData
         },
       }),
     )
