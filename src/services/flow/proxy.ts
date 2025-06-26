@@ -29,9 +29,25 @@ export default class ProxyService extends BaseService {
       throw this.logger.error('No LLM auth meta found. Please configure LLM auth meta first.', {exit: 1})
     }
 
+    if (!FLOW_BASE_URL) {
+      throw this.logger.error('FLOW_BASE_URL is not set. Please set it in the environment variables.', {exit: 1})
+    }
+
+    app.use(
+      '/v1/foundry',
+      proxy(FLOW_BASE_URL, {
+        proxyReqOptDecorator: this.proxyReqOptDecorator(authMetas, 'Azure Foundry', mode),
+        proxyReqPathResolver: (req) => {
+          const {operation} = this.parseAzureFoundryUrl(req.url)
+          const newUrl = `/ai-orchestration-api/v1/foundry/${operation}`
+          return newUrl
+        },
+      }),
+    )
+
     app.use(
       '/v1/openai',
-      proxy(FLOW_BASE_URL!, {
+      proxy(FLOW_BASE_URL, {
         proxyReqOptDecorator: this.proxyReqOptDecorator(authMetas, 'OpenAI', mode),
         proxyReqPathResolver: (req) => {
           const {operation} = this.parseOpenaiUrl(req.url)
@@ -44,7 +60,7 @@ export default class ProxyService extends BaseService {
     // google genai
     app.use(
       '/v1/google',
-      proxy(FLOW_BASE_URL!, {
+      proxy(FLOW_BASE_URL, {
         proxyErrorHandler(err, res, next) {
           // reward.demote('google genai', lodash.map(authMetas, 'clientId'))
 
@@ -138,6 +154,7 @@ export default class ProxyService extends BaseService {
           ['LLM Vendor', 'API Base URL', 'API Key'],
           ['OpenAI', colors.cyan(`http://localhost:${port}/v1/openai`), 'please-ignore'],
           ['Google AI', colors.cyan(`http://localhost:${port}/v1/google`), 'please-ignore'],
+          ['Azure Foundry', colors.cyan(`http://localhost:${port}/v1/foundry`), 'please-ignore'],
         ]),
       )
     })
@@ -147,19 +164,24 @@ export default class ProxyService extends BaseService {
     throw this.logger.error('LLM proxy is not implemented yet.', {exit: 1})
   }
 
-  protected parseGoogleapisUrl(url: string): {model: string; operation: string} {
-    const parts = lodash.trim(url, '/').split('/')
-    const [model] = parts.at(-1)?.split(':') || []
-    let [, operation] = parts.at(-1)?.split(':') || []
-    if (!operation) operation = parts.at(-1) || ''
-    return {model, operation}
+  protected parseAzureFoundryUrl(url: string): {operation: string; version: string} {
+    // v1/openai/deployments/{deployment-name}/chat/completions
+    // eslint-disable-next-line unicorn/no-unreadable-array-destructuring
+    const [version, , , ...operation] = lodash.trim(url, '/').split('/')
+    return {operation: operation.join('/') || '', version: version || 'v1'}
+  }
+
+  protected parseGoogleapisUrl(url: string): {model: string; operation: string; version: string} {
+    // v1beta/models/{model}:streamGenerateContent
+    const [version, , ...rest] = lodash.trim(url, '/').split('/')
+    const [model, ...operation] = rest.join('/').split(':')
+    return {model, operation: operation.join(':') || '', version: version || 'v1beta'}
   }
 
   protected parseOpenaiUrl(url: string): {operation: string; version: string} {
-    const parts = lodash.trim(url, '/').split('/')
-    const version = parts.shift() || 'v1'
-    const operation = parts.join('/') || ''
-    return {operation, version}
+    // v1/chat/completions
+    const [version, ...operation] = lodash.trim(url, '/').split('/')
+    return {operation: operation.join('/') || '', version: version || 'v1'}
   }
 
   protected proxyReqOptDecorator(
