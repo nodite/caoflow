@@ -1,3 +1,6 @@
+import {RequestOptions} from 'node:http'
+
+import {AuthMeta} from '@@types/services/flow/llm'
 import {FlowError} from '@@types/services/flow/proxy'
 import {SampleMode} from '@@types/utils/reward'
 import {FLOW_BASE_URL} from '@env'
@@ -6,7 +9,8 @@ import LlmService from '@services/flow/llm'
 import express from '@utils/express'
 import reward from '@utils/reward'
 import colors from 'ansi-colors'
-import proxy from 'express-http-proxy'
+import {Request} from 'express'
+import proxy, {ProxyOptions} from 'express-http-proxy'
 import getPort from 'get-port'
 import JSON from 'json5'
 import lodash from 'lodash'
@@ -24,6 +28,18 @@ export default class ProxyService extends BaseService {
     if (lodash.isEmpty(authMetas)) {
       throw this.logger.error('No LLM auth meta found. Please configure LLM auth meta first.', {exit: 1})
     }
+
+    app.use(
+      '/v1/openai',
+      proxy(FLOW_BASE_URL!, {
+        proxyReqOptDecorator: this.proxyReqOptDecorator(authMetas, 'OpenAI', mode),
+        proxyReqPathResolver: (req) => {
+          const {operation} = this.parseOpenaiUrl(req.url)
+          const newUrl = `/ai-orchestration-api/v1/openai/${operation}`
+          return newUrl
+        },
+      }),
+    )
 
     // google genai
     app.use(
@@ -47,36 +63,7 @@ export default class ProxyService extends BaseService {
 
           return reqBody
         },
-        proxyReqOptDecorator: async (proxyReqOpts, _srcReq) => {
-          const clientId = await reward.sample(mode, 'googleapis', lodash.map(authMetas, 'clientId'))
-          const authMeta = lodash.find(authMetas, {clientId})!
-          const token = await this.llmService.getAuthToken(clientId)
-
-          const profile = [
-            '<',
-            'name=' + colors.cyan(authMeta.name),
-            ', ',
-            'tenant=' + colors.cyan(authMeta.tenant),
-            ', ',
-            'agent=' + colors.cyan(authMeta.agent),
-            ', ',
-            'clientId=' + colors.cyan(authMeta.clientId.slice(0, 8) + '...'),
-            '>',
-          ].join('')
-
-          this.logger.info(
-            `[${colors.yellow(moment().format('YYYY-MM-DD HH:mm:ss'))}] Using Google GenAI with profile:\n${profile}`,
-          )
-
-          proxyReqOpts.headers = lodash.merge({}, proxyReqOpts.headers, {
-            Authorization: `Bearer ${token}`,
-            cookie: 'FlowToken=' + token,
-            FlowAgent: authMeta.agent,
-            FlowTenant: authMeta.tenant,
-          })
-
-          return proxyReqOpts
-        },
+        proxyReqOptDecorator: this.proxyReqOptDecorator(authMetas, 'Google GenAI', mode),
         proxyReqPathResolver: (req) => {
           const {operation} = this.parseGoogleapisUrl(req.url)
           const newUrl = `/ai-orchestration-api/v1/google/${operation}`
@@ -166,5 +153,49 @@ export default class ProxyService extends BaseService {
     let [, operation] = parts.at(-1)?.split(':') || []
     if (!operation) operation = parts.at(-1) || ''
     return {model, operation}
+  }
+
+  protected parseOpenaiUrl(url: string): {operation: string; version: string} {
+    const parts = lodash.trim(url, '/').split('/')
+    const version = parts.shift() || 'v1'
+    const operation = parts.join('/') || ''
+    return {operation, version}
+  }
+
+  protected proxyReqOptDecorator(
+    authMetas: AuthMeta[],
+    llmVendor: string,
+    sampleMode: SampleMode,
+  ): ProxyOptions['proxyReqOptDecorator'] {
+    return async (proxyReqOpts: RequestOptions, _srcReq: Request) => {
+      const clientId = await reward.sample(sampleMode, 'googleapis', lodash.map(authMetas, 'clientId'))
+      const authMeta = lodash.find(authMetas, {clientId})!
+      const token = await this.llmService.getAuthToken(clientId)
+
+      const profile = [
+        '<',
+        'name=' + colors.cyan(authMeta.name),
+        ', ',
+        'tenant=' + colors.cyan(authMeta.tenant),
+        ', ',
+        'agent=' + colors.cyan(authMeta.agent),
+        ', ',
+        'clientId=' + colors.cyan(authMeta.clientId.slice(0, 8) + '...'),
+        '>',
+      ].join('')
+
+      this.logger.info(
+        `[${colors.yellow(moment().format('YYYY-MM-DD HH:mm:ss'))}] Using ${llmVendor} with profile:\n${profile}`,
+      )
+
+      proxyReqOpts.headers = lodash.merge({}, proxyReqOpts.headers, {
+        Authorization: `Bearer ${token}`,
+        cookie: 'FlowToken=' + token,
+        FlowAgent: authMeta.agent,
+        FlowTenant: authMeta.tenant,
+      })
+
+      return proxyReqOpts
+    }
   }
 }
