@@ -21,6 +21,10 @@ export default class ProxyService extends BaseService {
 
     const authMetas = await this.llmService.listAuthMeta()
 
+    if (lodash.isEmpty(authMetas)) {
+      throw this.logger.error('No LLM auth meta found. Please configure LLM auth meta first.', {exit: 1})
+    }
+
     // google genai
     app.use(
       '/v1/google',
