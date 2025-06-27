@@ -54,7 +54,7 @@ export default class LoginService extends BaseService {
     // Express listener.
     let cbAppIsListened = false
 
-    const cbApp = express.createApp()
+    const cbApp = express.createApp({bodyParse: true})
 
     cbApp.use('/auth/callback', async (req, res) => {
       const {code, flow_code, flow_state} = req.query

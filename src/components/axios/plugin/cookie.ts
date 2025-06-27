@@ -20,7 +20,7 @@ const setupCookieJar = (axios: AxiosInstance): AxiosInstance => {
     let {url} = config
 
     if (!validator.isURL(url || '', {require_protocol: true})) {
-      const baseUrl = axios.defaults.baseURL || ''
+      const baseUrl = config.baseURL || axios.defaults.baseURL || ''
       url = new URL(url || '', baseUrl).toString()
     }
 
