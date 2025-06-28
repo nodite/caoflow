@@ -26,7 +26,7 @@
     "cache-manager": "^7",
     "cacheable": "^1",
     "dataclass": "^2",
-    "dotenv": "^16",
+    "dotenv": "^17",
     "edge-paths": "^3",
     "efficient-random-weighted": "^1",
     "escodegen": "^2",
