@@ -25,15 +25,17 @@
     "body-parser": "^2",
     "cache-manager": "^7",
     "cacheable": "^1",
+    "dataclass": "^2",
     "dotenv": "^16",
     "edge-paths": "^3",
     "efficient-random-weighted": "^1",
     "escodegen": "^2",
     "express": "^5",
-    "express-http-proxy": "^2",
+    "express-http-context": "^2",
     "fs-extra": "^11",
     "get-port": "^7",
     "http-cookie-agent": "^7",
+    "http-proxy-middleware": "^3",
     "http-status": "^2",
     "json5": "^2",
     "keyv": "^5",
@@ -94,7 +96,9 @@
     "tsx": "^4",
     "typescript": "^5"
   },
-  "overrides": {},
+  "overrides": {
+    "http-proxy": "npm:http-proxy-node16@^1"
+  },
   "engines": {
     "node": ">20.6.0"
   },

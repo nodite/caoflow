@@ -17,7 +17,7 @@ export default class Proxy extends BaseCommand {
   static flags = {
     traffic: Flags.string({
       default: 'balance',
-      description: 'Not balance traffic by registered llm auth.',
+      description: 'Traffic mode for LLM API.',
       options: SampleModes,
     }),
   }
@@ -26,6 +26,9 @@ export default class Proxy extends BaseCommand {
 
   async run(): Promise<void> {
     const {flags} = await this.parse(Proxy)
-    await this.proxyService.start(flags.traffic as SampleMode)
+
+    await this.proxyService.start({
+      trafficMode: flags.traffic as SampleMode,
+    })
   }
 }

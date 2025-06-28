@@ -1,4 +1,6 @@
-import {type AppName, APPS} from '@@types/components/openapi/user-api/data-constracts'
+import type {AppName} from '@@types/components/openapi/user-api/data-constracts'
+
+import {APPS} from '@@types/components/openapi/user-api/data-constracts'
 import BaseCommand from '@abstracts/base'
 import {checkbox, input} from '@inquirer/prompts'
 import {Flags} from '@oclif/core'

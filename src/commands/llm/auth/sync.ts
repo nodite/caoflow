@@ -1,4 +1,4 @@
-import {AuthMeta} from '@@types/services/flow/llm'
+import {FlowAuthMeta} from '@@types/services/flow/llm'
 import BaseCommand from '@abstracts/base'
 import {Flags} from '@oclif/core'
 import LlmService from '@services/flow/llm'
@@ -50,31 +50,26 @@ export default class Sync extends BaseCommand {
         continue
       }
 
-      const meta: AuthMeta = {
+      const authMeta = FlowAuthMeta.create({
         agent: 'simple_agent',
         appToAccess: 'llm-api',
         clientId: apiKey.clientId,
         clientSecret,
         name: apiKey.name,
         tenant: await this.userService.getPrincipalTenant(),
-      }
+      })
 
-      if (!meta.clientSecret) {
+      if (!authMeta.clientSecret) {
         this.log(`Client secret not found. Skipping...`)
         continue
       }
 
       await this.config.runCommand('llm:auth:set', [
         '--name',
-        meta.name,
-        '--agent',
-        meta.agent,
-        '--client-id',
-        meta.clientId,
-        '--client-secret',
-        meta.clientSecret,
-        '--tenant',
-        meta.tenant,
+        apiKey.name,
+        '--flow',
+        '--flow-auth-meta',
+        JSON.stringify(authMeta),
         ...(flags.force ? ['--force'] : []),
       ])
 
