@@ -3,7 +3,7 @@ import type {LlmAuthMeta, LlmVendor} from '@@types/services/flow/llm'
 
 import {DefaultAuthMeta, FlowAuthMeta} from '@@types/services/flow/llm'
 import axios from '@components/axios'
-import {CacheClient, memory} from '@components/cache'
+import {CacheClient} from '@components/cache'
 import AuthEngineApi from '@components/openapi/auth-engine-api/AuthEngineApi'
 import UserApi from '@components/openapi/user-api/UserApi'
 import {FLOW_BASE_URL} from '@env'
@@ -20,7 +20,9 @@ export default class LlmService extends BaseService {
   protected userService = new UserService({jsonEnabled: this.jsonEnabled})
 
   public async flowModels(): Promise<Record<LlmVendor, string[]>> {
-    let allowedModels = await memory.cache.get<Record<LlmVendor, string[]>>('flow:allowedModels')
+    const cacheKey = 'flow:allowed_models'
+
+    let allowedModels = await CacheClient.LLM.get<Record<LlmVendor, string[]>>(cacheKey)
 
     if (!lodash.isEmpty(allowedModels)) return allowedModels
 
@@ -32,7 +34,7 @@ export default class LlmService extends BaseService {
       .mapValues((models) => lodash.chain(models).map('name').uniq().value())
       .value() as Record<LlmVendor, string[]>
 
-    await memory.cache.set('flow:allowedModels', allowedModels, 24 * 3600 * 1000) // 1 day
+    await CacheClient.LLM.set(cacheKey, allowedModels, 24 * 3600 * 1000) // 1 day
 
     return allowedModels
   }

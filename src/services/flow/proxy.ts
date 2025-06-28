@@ -398,7 +398,6 @@ export default class ProxyService extends BaseService {
         }
 
         this.logger.info(` <model=${colors.gray(model || '')}>`)
-        this.logger.info('')
 
         fixRequestBody(proxyReq, req)
       })
