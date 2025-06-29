@@ -31,9 +31,9 @@ export default class Logger {
   /**
    * @see https://github.com/oclif/core/blob/229037b2dec7d27cb47522ca2116c336c6b218b7/src/command.ts#L245
    */
-  public info(message: string = '', ...args: any[]): void {
+  public log(message: string = '', ...args: any[]): void {
     if (this.jsonEnabled && validator.isJSON(message)) {
-      this.infoJson(JSON.parse(message))
+      this.logJson(JSON.parse(message))
     } else {
       message = lodash.isString(message) ? message : inspect(message)
       ux.stdout(message, ...args)
@@ -43,16 +43,16 @@ export default class Logger {
   /**
    * @see https://github.com/oclif/core/blob/229037b2dec7d27cb47522ca2116c336c6b218b7/src/command.ts#L252
    */
-  public infoJson(json: unknown): void {
+  public logJson(json: unknown): void {
     ux.stdout(ux.colorizeJson(json, {pretty: true}))
   }
 
   /**
    * @see https://github.com/oclif/core/blob/229037b2dec7d27cb47522ca2116c336c6b218b7/src/command.ts#L256
    */
-  public infoToStderr(message: string = '', ...args: any[]): void {
+  public logToStderr(message: string = '', ...args: any[]): void {
     if (this.jsonEnabled && validator.isJSON(message)) {
-      this.infoJsonToStderr(JSON.parse(message))
+      this.logJsonToStderr(JSON.parse(message))
     } else {
       message = lodash.isString(message) ? message : inspect(message)
       ux.stderr(message, ...args)
@@ -62,7 +62,7 @@ export default class Logger {
   /**
    * @param json - The JSON object to print to stderr.
    */
-  public infoJsonToStderr(json: unknown): void {
+  public logJsonToStderr(json: unknown): void {
     ux.stderr(ux.colorizeJson(json, {pretty: true}))
   }
 

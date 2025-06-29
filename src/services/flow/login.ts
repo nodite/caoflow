@@ -67,7 +67,7 @@ export default class LoginService extends BaseService {
       tenantUrl.searchParams.set('redirect_uri', generatePrincipalPolicyUrlDto.redirectUri)
       tenantUrl.searchParams.set('change_tenant', '1')
 
-      this.logger.info(
+      this.logger.log(
         `You have successfully logged in with the email: ${colors.cyan(generatePrincipalPolicyUrlDto.email)}`,
       )
 
@@ -118,11 +118,11 @@ export default class LoginService extends BaseService {
       }
     })
 
-    this.logger.info('A browser window has been opened. Please continue the login in the web browser.')
+    this.logger.log('A browser window has been opened. Please continue the login in the web browser.')
 
     await awaitUntil({predicate: async () => loginPage.isClosed(), timeout: 3600 * 1000})
 
-    this.logger.info('Browser window has been closed, processing the login result...')
+    this.logger.log('Browser window has been closed, processing the login result...')
 
     await loginBrowser.close()
     await cbServer.close()
@@ -141,24 +141,24 @@ export default class LoginService extends BaseService {
     const principalTenant = lodash.find(createTokenResult?.tenants, {isPrincipal: true})
     const activeTenant = lodash.find(createTokenResult?.tenants, {isActive: true})
 
-    this.logger.info('')
-    this.logger.info(
+    this.logger.log('')
+    this.logger.log(
       `${colors.green('✔')} ${colors.bold('Email')}: ${colors.cyan(generatePrincipalPolicyUrlDto.email)}`,
     )
-    this.logger.info(
+    this.logger.log(
       `${colors.green('✔')} ${colors.bold('Principal Tenant')}: ${colors.cyan(principalTenant?.displayName || 'N/A')}`,
     )
-    this.logger.info(
+    this.logger.log(
       `${colors.green('✔')} ${colors.bold('Active Tenant')}: ${colors.cyan(activeTenant?.displayName || 'N/A')}`,
     )
-    this.logger.info('')
+    this.logger.log('')
 
     // Set the default user
-    this.logger.info('Setting the authenticated account as default...')
+    this.logger.log('Setting the authenticated account as default...')
     await this.userService.setDefaultUser({auth: 'email', user: generatePrincipalPolicyUrlDto.email})
-    this.logger.info(`The account ${colors.cyan(generatePrincipalPolicyUrlDto.email)} has been set as default account.`)
-    this.logger.info('You can change the default account by running `caoflow user set` command.')
-    this.logger.info('')
+    this.logger.log(`The account ${colors.cyan(generatePrincipalPolicyUrlDto.email)} has been set as default account.`)
+    this.logger.log('You can change the default account by running `caoflow user set` command.')
+    this.logger.log('')
   }
 
   @CacheClear({cacheKey: LoginService.CACHE_KEY_AUTH_USER(false), client: CacheClient.LOGIN})

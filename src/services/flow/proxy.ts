@@ -109,10 +109,10 @@ export default class ProxyService extends BaseService {
     const port = await getPort({port: 4399})
 
     app.listen(port, () => {
-      this.logger.info('Proxy server is running on port ' + colors.cyan(String(port)))
-      this.logger.info('')
-      this.logger.info('You can access the LLM proxy at:')
-      this.logger.info(
+      this.logger.log('Proxy server is running on port ' + colors.cyan(String(port)))
+      this.logger.log('')
+      this.logger.log('You can access the LLM proxy at:')
+      this.logger.log(
         table([
           ['LLM Vendor', 'API Base URL', 'API Key'],
           ['OpenAI/Azure OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
@@ -175,7 +175,7 @@ export default class ProxyService extends BaseService {
 
     profile.push('>')
 
-    this.logger.info(
+    this.logger.log(
       [
         `[${colors.yellow(moment().format('YYYY-MM-DD HH:mm:ss'))}]`,
         `Using ${colors.cyan(llmVendor)} with profile:\n`,
@@ -397,7 +397,7 @@ export default class ProxyService extends BaseService {
           requestBody.allowedModels = config.flowModels || [model]
         }
 
-        this.logger.info(` <model=${colors.gray(model || '')}>`)
+        this.logger.log(` <model=${colors.gray(model || '')}>`)
 
         fixRequestBody(proxyReq, req)
       })
