@@ -122,16 +122,16 @@ Set LLM auth metadata.
 
 ```
 USAGE
-  $ caoflow llm auth set --name <value> [--agent <value>] [--client-id <value>] [--client-secret <value>] [-f]
-    [--tenant <value>]
+  $ caoflow llm auth set --auth-type default|flow --name <value> [--default-auth-meta <value>] [--flow-auth-meta
+    <value>] [-f]
 
 FLAGS
-  -f, --force                  Force set without confirmation if no related LLM auth metadata found online.
-      --agent=<value>          [default: simple_agent] Agent for the LLM auth metadata.
-      --client-id=<value>      Client ID for the LLM auth metadata.
-      --client-secret=<value>  Client secret for the LLM auth metadata.
-      --name=<value>           (required) Name of the LLM auth metadata to set.
-      --tenant=<value>         Tenant for the LLM auth metadata.
+  -f, --force                      Force set without confirmation if no related LLM auth metadata found online.
+      --auth-type=<option>         (required) Type of the LLM auth metadata to set.
+                                   <options: default|flow>
+      --default-auth-meta=<value>  Json string of default auth meta, e.g. '{type:'default'}'.
+      --flow-auth-meta=<value>     Json string of flow auth meta, e.g. '{type:'flow'}'.
+      --name=<value>               (required) Name of the LLM auth metadata to set.
 
 DESCRIPTION
   Set LLM auth metadata.
@@ -176,7 +176,7 @@ USAGE
   $ caoflow llm proxy start [--traffic balance|encourage|none]
 
 FLAGS
-  --traffic=<option>  [default: balance] Not balance traffic by registered llm auth.
+  --traffic=<option>  [default: balance] Traffic mode for LLM API.
                       <options: balance|encourage|none>
 
 DESCRIPTION
