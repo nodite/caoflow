@@ -768,4 +768,51 @@ export default class UserApi<
       secure: true,
       ...params,
     });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetAcuEvents
+   * @summary Retrieve ACU report details for a specific month and year
+   * @request GET:/user-api/v1/acu-events/report
+   * @secure
+   */
+  getAcuEvents = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, void>({
+      path: `/user-api/v1/acu-events/report`,
+      method: "GET",
+      query: query,
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetAvailableMonths
+   * @summary Get list of available months
+   * @request GET:/user-api/v1/acu-events/report/available-months
+   * @secure
+   */
+  getAvailableMonths = (params: RequestParams = {}) =>
+    this.request<void, any>({
+      path: `/user-api/v1/acu-events/report/available-months`,
+      method: "GET",
+      secure: true,
+      ...params,
+    });
 }

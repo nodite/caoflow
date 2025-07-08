@@ -20,6 +20,7 @@ export enum SrcAdaptersEntrypointsModelListSingleSourceWithConnectionResponseRes
   AZURE_BLOB_STORAGE = "AZURE_BLOB_STORAGE",
   GOOGLE_DRIVE = "GOOGLE_DRIVE",
   JIRA = "JIRA",
+  GIT = "GIT",
 }
 
 /**
@@ -33,6 +34,7 @@ export enum SrcAdaptersEntrypointsModelFlowTenantConnectionResponseResultElement
   GOOGLE_DRIVE = "GOOGLE_DRIVE",
   JIRA = "JIRA",
   AZURE = "AZURE",
+  GIT = "GIT",
 }
 
 /**
@@ -53,6 +55,7 @@ export enum SourceType {
   AZURE_BLOB_STORAGE = "AZURE_BLOB_STORAGE",
   GOOGLE_DRIVE = "GOOGLE_DRIVE",
   JIRA = "JIRA",
+  GIT = "GIT",
 }
 
 /**
@@ -93,6 +96,15 @@ export enum Permission {
 export enum IngestionTypeEnum {
   SINGLE_SOURCE = "SINGLE_SOURCE",
   CUSTOM_KEY = "CUSTOM_KEY",
+}
+
+/**
+ * GitType
+ * Represents the type of git connection.
+ */
+export enum GitType {
+  GITHUB = "GITHUB",
+  GITLAB = "GITLAB",
 }
 
 /**
@@ -140,6 +152,7 @@ export enum ConnectionType {
   AZURE_BLOB_STORAGE = "AZURE_BLOB_STORAGE",
   JIRA = "JIRA",
   AZURE = "AZURE",
+  GIT = "GIT",
 }
 
 /**
@@ -512,6 +525,8 @@ export interface Details {
   jira?: SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlowTenantConnectionRequestDetailsJira | null;
   /** Parameters for a Azure connection. */
   azure?: SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlowTenantConnectionRequestDetailsAzure | null;
+  /** Parameters for a Git source. */
+  git?: SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlowTenantConnectionRequestDetailsGit | null;
 }
 
 /**
@@ -557,6 +572,71 @@ export interface EmbeddingSimilarityFilter {
    * @default 20
    */
   limit?: number;
+}
+
+/**
+ * GitConnectionDetails
+ * The model for the Git details.
+ */
+export interface GitConnectionDetails {
+  /**
+   * Type
+   * The type of the git connection. (e.g. GITHUB, GITLAB)
+   */
+  type: string;
+  /**
+   * Owner
+   * The owner of the git repository.
+   */
+  owner: string;
+  /**
+   * Repositoryname
+   * The repository name of the git repository.
+   */
+  repositoryName: string;
+  /**
+   * Integrationid
+   * The integration ID for Integration Manager.
+   */
+  integrationId: string;
+  /**
+   * Userid
+   * The user ID for Integration Manager.
+   */
+  userId: string;
+}
+
+/**
+ * GitParams
+ * Represents the parameters for Git data ingestion.
+ *
+ * Attributes:
+ */
+export interface GitParams {
+  /** Branch */
+  branch: string;
+  /**
+   * Patternfilters
+   * List of file patterns to filter files.
+   */
+  patternFilters?: string[] | null;
+}
+
+/**
+ * GitProcessParams
+ * The model for the Git process params.
+ */
+export interface GitProcessParams {
+  /**
+   * Branch
+   * The branch of the git repository.
+   */
+  branch: string;
+  /**
+   * Patternfilters
+   * List of file types to get from the git repository.
+   */
+  patternFilters?: string[] | null;
 }
 
 /**
@@ -854,6 +934,22 @@ export interface ParamsConfluenceV1 {
 }
 
 /**
+ * ParamsGit
+ * Represents the parameters for Git data ingestion.
+ *
+ * Attributes:
+ */
+export interface ParamsGit {
+  /** Branch */
+  branch: string;
+  /**
+   * Patternfilters
+   * List of file patterns to filter files.
+   */
+  patternFilters?: string[] | null;
+}
+
+/**
  * ParamsGoogleDrive
  * Represents the parameters for Google Drive data ingestion.
  *
@@ -1020,6 +1116,8 @@ export interface ProcessParams {
   googleDrive?: GoogleDriveProcessParams | null;
   /** The jira params. */
   jira?: JiraProcessParams | null;
+  /** The git params. */
+  git?: GitProcessParams | null;
 }
 
 /**
@@ -1234,6 +1332,43 @@ export interface SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsConten
   jira?: SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsJiraDetailsJira | null;
   /** Parameters for a Azure connection. */
   azure?: SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsAzureDetailsAzure | null;
+  /** Parameters for a Git connection. */
+  git?: SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsGitDetailsGit | null;
+}
+
+/**
+ * DetailsGit
+ * DetailsGit is a Pydantic model representing the details required to connect to a Jira instance.
+ * Attributes:
+ *     type (str): The type of Git connection (e.g., GITHUB, GITLAB).
+ *     owner (str): The owner of the Git repository.
+ *     repository_name (str): The name of the Git repository.
+ *     integration_id (str): The integration ID for Integration Manager.
+ *     user_id (str): The user ID for Integration Manager.
+ */
+export interface SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsGitDetailsGit {
+  /** Git type (e.g., 'GITHUB', 'GITLAB'). */
+  type: GitType;
+  /**
+   * Owner
+   * Git repository owner.
+   */
+  owner: string;
+  /**
+   * Repositoryname
+   * Git repository name.
+   */
+  repositoryName: string;
+  /**
+   * Integrationid
+   * Integration ID.
+   */
+  integrationId: string;
+  /**
+   * Userid
+   * User ID for authentication.
+   */
+  userId: string;
 }
 
 /**
@@ -1329,6 +1464,8 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionConnectionDetail
   googleDrive?: GoogleDriveConnectionDetails | null;
   /** The jira details. */
   jira?: SrcAdaptersEntrypointsModelFlowTenantConnectionJiraConnectionDetailsJiraConnectionDetails | null;
+  /** The git details. */
+  git?: GitConnectionDetails | null;
   /** The azure details. */
   azure?: AzureConnectionDetails | null;
 }
@@ -1381,6 +1518,41 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsConfluenc
    * AccessToken for the Confluence connection.
    */
   accessToken?: string | null;
+}
+
+/**
+ * DetailsGit
+ * DetailsGit is a Pydantic model representing the details required to connect to a Git repository.
+ * Attributes:
+ *     type (str): The type of Git connection (e.g., GITHUB, GITLAB).
+ *     owner (str): The owner of the Git repository.
+ *     repository_name (str): The name of the Git repository.
+ *     integration_id (str): The integration ID for Integration Manager.
+ *     user_id (str): The user ID for Integration Manager.
+ */
+export interface SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsGitDetailsGit {
+  /** The type of the git connection. (e.g. GITHUB, GITLAB) */
+  type: GitType;
+  /**
+   * Owner
+   * The owner of the git repository.
+   */
+  owner: string;
+  /**
+   * Repositoryname
+   * The repository name of the git repository.
+   */
+  repositoryName: string;
+  /**
+   * Integrationid
+   * The integration ID for Integration Manager.
+   */
+  integrationId: string;
+  /**
+   * Userid
+   * The user ID for Integration Manager.
+   */
+  userId: string;
 }
 
 /**
@@ -1537,6 +1709,45 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlow
 }
 
 /**
+ * DetailsGit
+ * DetailsGit is a model representing the details required to connect to a Git repository.
+ * Attributes:
+ *     type (str): [Enum] The type of the Git repository (e.g., 'GITHUB', 'GITLAB').
+ *     owner (str): The owner of the Git repository.
+ *     repositoryName (str): The name of the Git repository.
+ *     integrationId (str): The integration ID for the Git repository.
+ *     userId (str): The user ID for authentication.
+ *     token (SecretStr): The access token for Git authentication.
+ */
+export interface SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlowTenantConnectionRequestDetailsGit {
+  /**
+   * Type
+   * Git type (e.g., 'GITHUB', 'GITLAB').
+   */
+  type?: string;
+  /**
+   * Owner
+   * Git repository owner.
+   */
+  owner?: string;
+  /**
+   * Repositoryname
+   * Git repository name.
+   */
+  repositoryName?: string;
+  /**
+   * Integrationid
+   * Integration ID.
+   */
+  integrationId?: string;
+  /**
+   * Userid
+   * User ID for authentication.
+   */
+  userId?: string;
+}
+
+/**
  * DetailsGoogleDrive
  * Represents the details for Google Drive connection.
  *
@@ -1667,6 +1878,8 @@ export interface SrcAdaptersEntrypointsModelIngestionV0RequestDetailsContentDeta
   googleDrive?: SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsGoogleDriveDetailsGoogleDrive | null;
   /** Parameters for a jira source. */
   jira?: SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsJiraDetailsJira | null;
+  /** Parameters for a git source. */
+  git?: SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsGitDetailsGit | null;
 }
 
 /**
@@ -1690,6 +1903,8 @@ export interface SrcAdaptersEntrypointsModelIngestionV0RequestParamsParams {
   googleDrive?: ParamsGoogleDrive | null;
   /** Jira parameters */
   jira?: ParamsJira | null;
+  /** Git parameters */
+  git?: ParamsGit | null;
 }
 
 /**
@@ -1774,6 +1989,8 @@ export interface SrcAdaptersEntrypointsModelListSingleSourceWithConnectionRespon
   googleDrive?: GoogleDriveConnectionDetails | null;
   /** The jira details. */
   jira?: SrcAdaptersEntrypointsModelListSingleSourceWithConnectionResponseJiraConnectionDetailsJiraConnectionDetails | null;
+  /** The git details. */
+  git?: GitConnectionDetails | null;
 }
 
 /**
@@ -1964,6 +2181,8 @@ export interface SrcAdaptersEntrypointsModelPatchSingleSourceIngestionRequestPar
   googleDrive?: GoogleDriveParams | null;
   /** The jira params. */
   jira?: JiraParams | null;
+  /** The git params. */
+  git?: GitParams | null;
 }
 
 /**

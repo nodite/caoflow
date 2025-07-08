@@ -10,6 +10,7 @@
  * ---------------------------------------------------------------
  */
 
+import { Record } from "./data-contracts";
 import { HttpClient, RequestParams } from "./http-client";
 
 export default class Health<
@@ -24,7 +25,7 @@ export default class Health<
    * @request GET:/health
    */
   healthCheckHealthGet = (params: RequestParams = {}) =>
-    this.request<object, any>({
+    this.request<Record<string, any>, any>({
       path: `/health`,
       method: "GET",
       format: "json",
