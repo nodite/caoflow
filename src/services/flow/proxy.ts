@@ -45,13 +45,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'amazon-bedrock', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['amazon-bedrock'], llmVendor: 'amazon-bedrock'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'amazon-bedrock'})],
         target: FLOW_BASE_URL,
       }),
@@ -64,13 +64,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'azure-foundry', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['azure-foundry'], llmVendor: 'azure-foundry'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'azure-foundry'})],
         target: FLOW_BASE_URL,
       }),
@@ -83,13 +83,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'azure-openai', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['azure-openai'], llmVendor: 'azure-openai'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'azure-openai'})],
         target: FLOW_BASE_URL,
       }),
@@ -102,13 +102,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'google-gemini', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['google-gemini'], llmVendor: 'google-gemini'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
-        logger: this.logger,
+        logger: console,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'google-gemini'})],
         target: FLOW_BASE_URL,
       }),
