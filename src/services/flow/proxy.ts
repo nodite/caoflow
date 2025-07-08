@@ -45,11 +45,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'amazon-bedrock', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['amazon-bedrock'], llmVendor: 'amazon-bedrock'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'amazon-bedrock'})],
         target: FLOW_BASE_URL,
       }),
@@ -62,11 +64,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'azure-foundry', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['azure-foundry'], llmVendor: 'azure-foundry'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'azure-foundry'})],
         target: FLOW_BASE_URL,
       }),
@@ -79,11 +83,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'azure-openai', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['azure-openai'], llmVendor: 'azure-openai'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'azure-openai'})],
         target: FLOW_BASE_URL,
       }),
@@ -96,11 +102,13 @@ export default class ProxyService extends BaseService {
       this.authMiddleware(authMetas, 'google-gemini', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('flow', {flowModels: flowModels['google-gemini'], llmVendor: 'google-gemini'})],
         target: FLOW_BASE_URL,
       }),
       // default proxy.
       createProxyMiddleware({
+        logger: this.logger,
         plugins: [this.genProxyPlugin('default', {llmVendor: 'google-gemini'})],
         target: FLOW_BASE_URL,
       }),
@@ -115,7 +123,7 @@ export default class ProxyService extends BaseService {
       this.logger.log(
         table([
           ['LLM Vendor', 'API Base URL', 'API Key'],
-          ['OpenAI/Azure OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
+          ['OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
           ['Google AI', colors.cyan(`http://127.0.0.1:${port}/v1/google`), 'please-ignore'],
           ['Azure Foundry', colors.cyan(`http://127.0.0.1:${port}/v1/foundry`), 'please-ignore'],
         ]),
@@ -254,6 +262,7 @@ export default class ProxyService extends BaseService {
     let model: string | undefined
 
     switch (llmVendor) {
+      case 'azure-foundry':
       case 'azure-openai': {
         ;({model} = lodash.get(req, 'body', {}) as Record<string, any>)
         break
@@ -280,9 +289,14 @@ export default class ProxyService extends BaseService {
   }
 
   protected _parseAzureFoundryUrl(url: string): {operation: string; version: string} {
+    url = lodash.trim(url, '/')
+
     // v1/openai/deployments/{deployment-name}/chat/completions
+    if (!url.startsWith('v1')) url = 'v1/' + url
+
     // eslint-disable-next-line unicorn/no-unreadable-array-destructuring
-    const [version, , , ...operation] = lodash.trim(url, '/').split('/')
+    const [version, , , , ...operation] = url.split('/')
+
     return {operation: operation.join('/') || '', version: version || 'v1'}
   }
 
@@ -293,15 +307,17 @@ export default class ProxyService extends BaseService {
     return {model, operation: operation.join(':') || '', version: version || 'v1beta'}
   }
 
-  protected _parseOpenaiUrl(url: string): {operation: string; version: string} {
-    // v1/chat/completions
-    const _url = lodash.trim(url, '/').split('/')
+  protected _parseOpenaiUrl(url: string): {model?: string; operation: string; version: string} {
+    url = lodash.trim(url, '/')
 
-    if (!_url[0].startsWith('v')) {
-      _url.unshift('v1')
+    if (url.includes('/deployments/')) {
+      return this._parseAzureFoundryUrl(url)
     }
 
-    const [version, ...operation] = _url
+    // v1/chat/completions
+    if (!url.startsWith('v1')) url = 'v1/' + url
+
+    const [version, ...operation] = url.split('/')
 
     return {operation: operation.join('/') || '', version: version || 'v1'}
   }

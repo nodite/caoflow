@@ -10,6 +10,8 @@ import validator from 'validator'
 export default class Logger {
   public debug: ReturnType<typeof makeDebug>
 
+  public info = this.log
+
   private jsonEnabled: boolean
 
   constructor(namespace: string, options?: {jsonEnabled?: boolean}) {
