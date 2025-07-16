@@ -42,7 +42,7 @@
     "lodash": "^4",
     "moment": "^2",
     "object-treeify": "^5",
-    "pkg-dir": "^8",
+    "pkg-dir": "^9",
     "puppeteer": "^24",
     "puppeteer-extra": "^3",
     "puppeteer-extra-plugin-stealth": "^2",
