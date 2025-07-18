@@ -3,7 +3,7 @@ import 'dotenv/config'
 import path from 'node:path'
 
 import fs from 'fs-extra'
-import {packageDirectorySync} from 'pkg-dir'
+import {packageDirectorySync} from 'package-directory'
 
 const CLI_DIR = process.cwd()
 
