@@ -194,3 +194,10 @@ export interface FlowMemoryDto {
   ownerId: string;
   identifier: string;
 }
+
+export interface GetUniqueUsersCountResponse {
+  /** @example 32 */
+  count: number;
+  /** @example "Unique users count retrieved successfully" */
+  message: string;
+}

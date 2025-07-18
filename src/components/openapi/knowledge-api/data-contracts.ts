@@ -430,6 +430,11 @@ export interface Content {
    */
   similarity?: number | null;
   /**
+   * Bm25Score
+   * The BM25 score.
+   */
+  bm25Score?: number | null;
+  /**
    * Records
    * The records.
    */
@@ -575,38 +580,6 @@ export interface EmbeddingSimilarityFilter {
 }
 
 /**
- * GitConnectionDetails
- * The model for the Git details.
- */
-export interface GitConnectionDetails {
-  /**
-   * Type
-   * The type of the git connection. (e.g. GITHUB, GITLAB)
-   */
-  type: string;
-  /**
-   * Owner
-   * The owner of the git repository.
-   */
-  owner: string;
-  /**
-   * Repositoryname
-   * The repository name of the git repository.
-   */
-  repositoryName: string;
-  /**
-   * Integrationid
-   * The integration ID for Integration Manager.
-   */
-  integrationId: string;
-  /**
-   * Userid
-   * The user ID for Integration Manager.
-   */
-  userId: string;
-}
-
-/**
  * GitParams
  * Represents the parameters for Git data ingestion.
  *
@@ -634,26 +607,41 @@ export interface GitProcessParams {
   branch: string;
   /**
    * Patternfilters
-   * List of file types to get from the git repository.
+   * List of patterns to filter files in the repository. If not provided, all files will be processed.
    */
   patternFilters?: string[] | null;
 }
 
 /**
  * GoogleDriveConnectionDetails
- * The model for the azure blob storage details.
+ * The model for the Google Drive connection details.
  */
 export interface GoogleDriveConnectionDetails {
   /**
    * Serviceaccountinfo
-   * The service account info of the google drive.
+   * The service account info of the Google Drive.
    */
-  serviceAccountInfo: string;
+  serviceAccountInfo?: string | null;
   /**
    * Serviceaccountemail
-   * The service account email of the google drive.
+   * The service account email of the Google Drive.
    */
-  serviceAccountEmail: string;
+  serviceAccountEmail?: string | null;
+  /**
+   * Integrationid
+   * Integration ID for OAuth authentication.
+   */
+  integrationId?: string | null;
+  /**
+   * Userid
+   * User ID for OAuth authentication.
+   */
+  userId?: string | null;
+  /**
+   * Type
+   * Type of authentication ('Oauth' or 'ServiceAccount').
+   */
+  type?: string | null;
 }
 
 /**
@@ -1377,14 +1365,32 @@ export interface SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsGitDet
  *
  * Attributes:
  *     serviceAccountInfo (str): Service account info for the Google Drive connection.
+ *     integrationId (str): Integration ID for OAuth authentication.
+ *     userId (str): User ID for OAuth authentication.
+ *     type (str): Type of authentication ("Oauth" or "ServiceAccount").
  */
 export interface SrcAdaptersEntrypointsModelCreateConnectionRequestDetailsGoogleDriveDetailsGoogleDrive {
   /**
    * Serviceaccountinfo
    * Service account info for the Google Drive connection.
-   * @format password
    */
-  serviceAccountInfo: string;
+  serviceAccountInfo?: string | null;
+  /**
+   * Integrationid
+   * Integration ID for OAuth authentication.
+   */
+  integrationId?: string | null;
+  /**
+   * Userid
+   * User ID for OAuth authentication.
+   */
+  userId?: string | null;
+  /**
+   * Type
+   * Type of authentication ('Oauth' or 'ServiceAccount').
+   * @default "ServiceAccount"
+   */
+  type?: string | null;
 }
 
 /**
@@ -1465,7 +1471,7 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionConnectionDetail
   /** The jira details. */
   jira?: SrcAdaptersEntrypointsModelFlowTenantConnectionJiraConnectionDetailsJiraConnectionDetails | null;
   /** The git details. */
-  git?: GitConnectionDetails | null;
+  git?: SrcAdaptersEntrypointsModelFlowTenantConnectionGitConnectionDetailsGitConnectionDetails | null;
   /** The azure details. */
   azure?: AzureConnectionDetails | null;
 }
@@ -1562,19 +1568,37 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsGitDetail
  * Attributes:
  *     serviceAccountInfo (SecretStr): Service account info for the Google Drive connection.
  *     serviceAccountEmail (str): Service account email for the Google Drive connection
+ *     integrationId (str): Integration ID for OAuth authentication.
+ *     userId (str): User ID for OAuth authentication.
+ *     type (str): Type of authentication ("Oauth" or "ServiceAccount").
  */
 export interface SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsGoogleDriveDetailsGoogleDrive {
   /**
    * Serviceaccountinfo
    * Service account info for the Google Drive connection.
-   * @format password
    */
-  serviceAccountInfo: string;
+  serviceAccountInfo?: string | null;
   /**
    * Serviceaccountemail
    * Service account email for the Google Drive connection, this field will be populated by serviceAccountInfo
    */
-  serviceAccountEmail?: string;
+  serviceAccountEmail?: string | null;
+  /**
+   * Integrationid
+   * Integration ID for OAuth authentication.
+   */
+  integrationId?: string | null;
+  /**
+   * Userid
+   * User ID for OAuth authentication.
+   */
+  userId?: string | null;
+  /**
+   * Type
+   * Type of authentication ('Oauth' or 'ServiceAccount').
+   * @default "ServiceAccount"
+   */
+  type?: string | null;
 }
 
 /**
@@ -1605,6 +1629,38 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionDetailsJiraDetai
    * @format password
    */
   token: string;
+}
+
+/**
+ * GitConnectionDetails
+ * The model for the Git details.
+ */
+export interface SrcAdaptersEntrypointsModelFlowTenantConnectionGitConnectionDetailsGitConnectionDetails {
+  /**
+   * Type
+   * The type of the git connection. (e.g. GITHUB, GITLAB)
+   */
+  type: string;
+  /**
+   * Owner
+   * The owner of the git repository.
+   */
+  owner: string;
+  /**
+   * Repositoryname
+   * The repository name of the git repository.
+   */
+  repositoryName: string;
+  /**
+   * Integrationid
+   * The integration ID for Integration Manager.
+   */
+  integrationId: string;
+  /**
+   * Userid
+   * The user ID for Integration Manager.
+   */
+  userId: string;
 }
 
 /**
@@ -1761,6 +1817,21 @@ export interface SrcAdaptersEntrypointsModelFlowTenantConnectionRequestPatchFlow
    * @format password
    */
   serviceAccountInfo: string;
+  /**
+   * Integrationid
+   * Integration ID for the Google Drive connection.
+   */
+  integrationId?: string | null;
+  /**
+   * Userid
+   * User ID for the Google Drive connection.
+   */
+  userId?: string | null;
+  /**
+   * Type
+   * Type of the Google Drive connection.
+   */
+  type?: string | null;
 }
 
 /**
@@ -1990,7 +2061,36 @@ export interface SrcAdaptersEntrypointsModelListSingleSourceWithConnectionRespon
   /** The jira details. */
   jira?: SrcAdaptersEntrypointsModelListSingleSourceWithConnectionResponseJiraConnectionDetailsJiraConnectionDetails | null;
   /** The git details. */
-  git?: GitConnectionDetails | null;
+  git?: SrcAdaptersEntrypointsModelListSingleSourceWithConnectionResponseGitConnectionDetailsGitConnectionDetails | null;
+}
+
+/**
+ * GitConnectionDetails
+ * The model for the Git connection details.
+ */
+export interface SrcAdaptersEntrypointsModelListSingleSourceWithConnectionResponseGitConnectionDetailsGitConnectionDetails {
+  /** The type of the git connection. (e.g. GITHUB, GITLAB) */
+  type: GitType;
+  /**
+   * Owner
+   * The owner of the GIT repository.             This is usually the user or organization that owns the repository.
+   */
+  owner: string;
+  /**
+   * Repositoryname
+   * The repository name of the GIT repository.
+   */
+  repositoryName: string;
+  /**
+   * Integrationid
+   * The integration ID for Integration Manager.
+   */
+  integrationId: string;
+  /**
+   * Userid
+   * The user ID for Integration Manager.
+   */
+  userId: string;
 }
 
 /**

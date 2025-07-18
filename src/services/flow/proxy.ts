@@ -41,7 +41,7 @@ export default class ProxyService extends BaseService {
     // ===================================================
     // Amazon Bedrock proxy.
     app.use(
-      '/v1/bedrock',
+      '/v1/amazon-bedrock',
       this.authMiddleware(authMetas, 'amazon-bedrock', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
@@ -123,9 +123,10 @@ export default class ProxyService extends BaseService {
       this.logger.log(
         table([
           ['LLM Vendor', 'API Base URL', 'API Key'],
-          ['OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
-          ['Google AI', colors.cyan(`http://127.0.0.1:${port}/v1/google`), 'please-ignore'],
+          ['Amazon Bedrock', colors.cyan(`http://127.0.0.1:${port}/v1/amazon-bedrock`), 'please-ignore'],
           ['Azure Foundry', colors.cyan(`http://127.0.0.1:${port}/v1/foundry`), 'please-ignore'],
+          ['Google AI', colors.cyan(`http://127.0.0.1:${port}/v1/google`), 'please-ignore'],
+          ['OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
         ]),
       )
     })
@@ -227,7 +228,8 @@ export default class ProxyService extends BaseService {
 
       switch (llmVendor) {
         case 'amazon-bedrock': {
-          throw this.logger.error('Path rewrite not implemented for amazon-bedrock', {exit: 1})
+          const {operation} = this._parseAmazonBedrockUrl(path)
+          return `/ai-orchestration-api/v1/bedrock/${operation}`
         }
 
         case 'azure-foundry': {
@@ -262,6 +264,21 @@ export default class ProxyService extends BaseService {
     let model: string | undefined
 
     switch (llmVendor) {
+      case 'amazon-bedrock': {
+        ;({model} = lodash.get(req, 'body', {}) as Record<string, any>)
+
+        if (model) break
+
+        const originalUrl = lodash.get(req, 'originalUrl', '') as string
+        const baseUrl = lodash.get(req, 'baseUrl', '') as string
+        const url = originalUrl.startsWith(baseUrl) ? originalUrl.slice(baseUrl.length) : originalUrl
+        ;({model} = this._parseAmazonBedrockUrl(url))
+
+        if (model) break
+
+        throw this.logger.error('Model not found in request for amazon-bedrock', {exit: 1})
+      }
+
       case 'azure-foundry':
       case 'azure-openai': {
         ;({model} = lodash.get(req, 'body', {}) as Record<string, any>)
@@ -286,6 +303,18 @@ export default class ProxyService extends BaseService {
     }
 
     return model
+  }
+
+  protected _parseAmazonBedrockUrl(url: string): {model: string; operation: string} {
+    url = lodash.trim(url, '/')
+    if (url.startsWith('model/')) return this._parseAnthropicUrl(url)
+    throw this.logger.error('Parse Amazon Bedrock URL not implemented.', {exit: 1})
+  }
+
+  protected _parseAnthropicUrl(url: string): {model: string; operation: string} {
+    url = lodash.trim(url, '/')
+    const [, model, operation] = url.split('/')
+    return {model, operation: operation || ''}
   }
 
   protected _parseAzureFoundryUrl(url: string): {operation: string; version: string} {
