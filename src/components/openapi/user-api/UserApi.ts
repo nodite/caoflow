@@ -19,6 +19,7 @@ import {
   CreateGroupDto,
   CreateUserDto,
   FlowMemoryDto,
+  GetUniqueUsersCountResponse,
   GetUserGroupsResponse,
   GetUserRoleResponse,
   GroupResponse,
@@ -803,15 +804,229 @@ export default class UserApi<
    * No description
    *
    * @tags ACU
-   * @name GetAvailableMonths
-   * @summary Get list of available months
-   * @request GET:/user-api/v1/acu-events/report/available-months
+   * @name SyncAcuEventsV2
+   * @summary Sync ACU events daily and monthly with databricks
+   * @request POST:/user-api/v2/acu-events/sync
    * @secure
    */
-  getAvailableMonths = (params: RequestParams = {}) =>
+  syncAcuEventsV2 = (params: RequestParams = {}) =>
     this.request<void, any>({
-      path: `/user-api/v1/acu-events/report/available-months`,
+      path: `/user-api/v2/acu-events/sync`,
+      method: "POST",
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetAcuEventsConsumptionHistory
+   * @summary Get ACU Events consumption history given params
+   * @request GET:/user-api/v2/acu-events/consumption-history
+   * @secure
+   */
+  getAcuEventsConsumptionHistory = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+      /**
+       * Type of grouping that should be used
+       * @example "month"
+       */
+      groupBy: any;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, any>({
+      path: `/user-api/v2/acu-events/consumption-history`,
       method: "GET",
+      query: query,
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetAcuEventsCount
+   * @summary Get ACU Events count given params
+   * @request GET:/user-api/v2/acu-events/count
+   * @secure
+   */
+  getAcuEventsCount = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+      /**
+       * Type of grouping that should be used
+       * @example "month"
+       */
+      groupBy: any;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, any>({
+      path: `/user-api/v2/acu-events/count`,
+      method: "GET",
+      query: query,
+      secure: true,
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetAcuDetailedConsumption
+   * @summary Retrieve ACU detailed consumption for given filters
+   * @request GET:/user-api/v2/acu-events/detailed-consumption
+   * @secure
+   */
+  getAcuDetailedConsumption = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+      /**
+       * Type of grouping that should be used
+       * @example "month"
+       */
+      groupBy: any;
+      /**
+       * Field to sort the results by
+       * @example "eventDate"
+       */
+      orderBy: any;
+      /**
+       * Sorting order for the results
+       * @example "DESC"
+       */
+      orderDirection: any;
+      /**
+       * Page number
+       * @default 1
+       * @example 1
+       */
+      page: number;
+      /**
+       * Number of items per page
+       * @max 100
+       * @default 10
+       * @example 10
+       */
+      pageSize: number;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, void>({
+      path: `/user-api/v2/acu-events/detailed-consumption`,
+      method: "GET",
+      query: query,
+      secure: true,
+      ...params,
+    });
+  /**
+   * @description Retrieves the count of unique users based on specified criteria.
+   *
+   * @tags ACU
+   * @name GetUniqueUsersCount
+   * @summary Get unique users count from ACU events
+   * @request GET:/user-api/v2/acu-events/unique-users-count
+   * @secure
+   */
+  getUniqueUsersCount = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+      /**
+       * Type of grouping that should be used
+       * @example "month"
+       */
+      groupBy: any;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<GetUniqueUsersCountResponse, any>({
+      path: `/user-api/v2/acu-events/unique-users-count`,
+      method: "GET",
+      query: query,
+      secure: true,
+      format: "json",
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags ACU
+   * @name GetTotalConsumption
+   * @summary Get total consumption of ACU events
+   * @request GET:/user-api/v2/acu-events/total-consumption
+   * @secure
+   */
+  getTotalConsumption = (
+    query: {
+      /**
+       * Start date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-01T00:00:00.000Z"
+       */
+      startDate: string;
+      /**
+       * End date to search ACU events by range date
+       * @format date-time
+       * @example "2025-01-31T00:00:00.000Z"
+       */
+      endDate: string;
+      /**
+       * Type of grouping that should be used
+       * @example "month"
+       */
+      groupBy: any;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<void, any>({
+      path: `/user-api/v2/acu-events/total-consumption`,
+      method: "GET",
+      query: query,
       secure: true,
       ...params,
     });
