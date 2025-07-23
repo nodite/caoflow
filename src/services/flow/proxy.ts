@@ -243,10 +243,10 @@ export default class ProxyService extends BaseService {
         }
 
         case 'google-gemini': {
-          const token = await this.llmService.getAuthToken(authMeta.clientId)
+          // const token = await this.llmService.getAuthToken(authMeta.clientId)
 
           const urlInfo = new URL(path, authMeta.host())
-          urlInfo.searchParams.set('key', token)
+          // urlInfo.searchParams.set('key', token)
           path = urlInfo.pathname + urlInfo.search
 
           const {operation} = this._parseGoogleGeminiUrl(path)
