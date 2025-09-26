@@ -24,7 +24,7 @@
     "better-sqlite3": "^12",
     "body-parser": "^2",
     "cache-manager": "^7",
-    "cacheable": "^1",
+    "cacheable": "^2",
     "dataclass": "^2",
     "dotenv": "^17",
     "edge-paths": "^3",
