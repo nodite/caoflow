@@ -47,7 +47,7 @@
     "puppeteer-extra": "^3",
     "puppeteer-extra-plugin-stealth": "^2",
     "table": "^6",
-    "tough-cookie": "^5",
+    "tough-cookie": "^6",
     "user-agents": "^1",
     "uuid": "^13",
     "validator": "^13"
