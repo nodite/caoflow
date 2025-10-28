@@ -79,7 +79,7 @@ export default class ProxyService extends BaseService {
     // ===================================================
     // OpenAI proxy.
     app.use(
-      '/v1/openai',
+      '/openai',
       this.authMiddleware(authMetas, 'azure-openai', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
@@ -98,7 +98,7 @@ export default class ProxyService extends BaseService {
     // ===================================================
     // Google Gemini proxy.
     app.use(
-      '/v1/google',
+      '/gemini',
       this.authMiddleware(authMetas, 'google-gemini', config.trafficMode),
       // flow proxy.
       createProxyMiddleware({
@@ -123,10 +123,11 @@ export default class ProxyService extends BaseService {
       this.logger.log(
         table([
           ['LLM Vendor', 'API Base URL', 'API Key'],
+          ['Anthropic', colors.cyan(`http://127.0.0.1:${port}/anthropic`), 'please-ignore'],
           ['Amazon Bedrock', colors.cyan(`http://127.0.0.1:${port}/v1/amazon-bedrock`), 'please-ignore'],
           ['Azure Foundry', colors.cyan(`http://127.0.0.1:${port}/v1/foundry`), 'please-ignore'],
-          ['Google AI', colors.cyan(`http://127.0.0.1:${port}/v1/google`), 'please-ignore'],
-          ['OpenAI', colors.cyan(`http://127.0.0.1:${port}/v1/openai`), 'please-ignore'],
+          ['Gemini', colors.cyan(`http://127.0.0.1:${port}/gemini`), 'please-ignore'],
+          ['OpenAI', colors.cyan(`http://127.0.0.1:${port}/openai`), 'please-ignore'],
         ]),
       )
     })
@@ -202,12 +203,12 @@ export default class ProxyService extends BaseService {
           const model = this._getModelFromReq(llmVendor, req)
 
           const mappedModel: Record<string, string> = {
-            'gemini-1.5-pro-002': 'gemini-1.5-flash-002',
-            'gemini-2.0-pro-exp': 'gemini-2.0-flash',
-            'gemini-2.5-flash': 'gemini-2.5-flash-preview-05-20',
-            'gemini-2.5-pro': 'gemini-2.5-flash-preview-05-20',
-            'gemini-2.5-pro-preview-06-05': 'gemini-2.5-flash-preview-05-20',
-            'gemini-exp-1206': 'gemini-2.5-flash-preview-05-20',
+            // 'gemini-1.5-pro-002': 'gemini-1.5-flash-002',
+            // 'gemini-2.0-pro-exp': 'gemini-2.0-flash',
+            // 'gemini-2.5-flash': 'gemini-2.5-flash-preview-05-20',
+            // 'gemini-2.5-pro': 'gemini-2.5-flash-preview-05-20',
+            // 'gemini-2.5-pro-preview-06-05': 'gemini-2.5-flash-preview-05-20',
+            // 'gemini-exp-1206': 'gemini-2.5-flash-preview-05-20',
           }
 
           const finalModel = mappedModel[model] || model
@@ -223,7 +224,7 @@ export default class ProxyService extends BaseService {
   }
 
   protected _genFlowPathRewrite(llmVendor: LlmVendor) {
-    return async (path: string, _req: IncomingMessage) => {
+    return async (path: string, req: IncomingMessage) => {
       const authMeta = httpContext.get('auth-meta') as LlmAuthMeta
 
       switch (llmVendor) {
@@ -254,7 +255,7 @@ export default class ProxyService extends BaseService {
         }
 
         default: {
-          throw this.logger.error(`Path rewrite not implemented for ${llmVendor}`, {exit: 1})
+          return `/flow-llm-proxy/${lodash.get(req, 'originalUrl')}`
         }
       }
     }
@@ -368,7 +369,7 @@ export default class ProxyService extends BaseService {
               throw this.logger.error(`Set auth not implemented for ${authMeta.vendor}`, {exit: 1})
             }
           } else if (authMeta instanceof FlowAuthMeta) {
-            req.headers.authorization = `Bearer ${token}`
+            req.headers.authorization = `Bearer ${authMeta.jwt()}`
             req.headers.cookie = 'FlowToken=' + token
             req.headers.FlowAgent = authMeta.agent!
             req.headers.FlowTenant = authMeta.tenant!
@@ -414,21 +415,6 @@ export default class ProxyService extends BaseService {
         options.pathRewrite = this._genFlowPathRewrite(config.llmVendor)
       } else {
         throw this.logger.error(`Path rewrite not implemented for ${authType}`, {exit: 1})
-      }
-
-      switch (config.llmVendor) {
-        case 'google-gemini': {
-          proxyServer.on('proxyReq', async (_proxyReq, req) => {
-            const model = this._getModelFromReq(config.llmVendor, req)
-            const requestBody = lodash.get(req, 'body') as unknown as Record<string, any>
-
-            if (model === 'gemini-1.5-flash-002') {
-              delete requestBody?.generationConfig?.thinkingConfig
-            }
-          })
-
-          break
-        }
       }
 
       proxyServer.on('proxyReq', (proxyReq, req) => {

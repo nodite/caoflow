@@ -1,5 +1,6 @@
 import {FLOW_BASE_URL} from '@env'
 import {Data} from 'dataclass'
+import jwtSign from 'jwt-encode'
 
 export const LlmAuths = ['default', 'flow'] as const
 
@@ -37,6 +38,18 @@ export class FlowAuthMeta extends BaseAuthMeta {
   host(): string {
     if (!FLOW_BASE_URL) throw new Error('FLOW_BASE_URL is not set')
     return FLOW_BASE_URL
+  }
+
+  jwt(): string {
+    return jwtSign(
+      {
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+        tenant: this.tenant,
+      },
+      'a-string-secret-at-least-256-bits-long',
+      {alg: 'HS256', typ: 'JWT'},
+    )
   }
 }
 
