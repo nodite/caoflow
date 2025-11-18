@@ -8,7 +8,7 @@
   },
   "bugs": "https://github.com/nodite/caoflow/issues",
   "dependencies": {
-    "@inquirer/prompts": "^7",
+    "@inquirer/prompts": "^8",
     "@keyv/sqlite": "^4",
     "@nodite/cache-manager-adapter": "github:nodite/type-cacheable-cache-manager-adapter#main",
     "@oclif/core": "^4",
